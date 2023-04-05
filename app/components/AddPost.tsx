@@ -1,12 +1,25 @@
 "use client";
 
 import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 
 export default function AddPost() {
   const [title, setTitle] = useState("");
-  const [isDisabled, setIsDisabled] = useState(false)
+  const [isDisabled, setIsDisabled] = useState(false);
+
+  //Generate a post
+  const { mutate } = useMutation(
+    async (title: string) => await axios.post("/api/posts/addPost", { title })
+  );
+
+  const submitPost = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsDisabled(true);
+    mutate(title);
+  };
   return (
-    <form className="bg-white my-8 p-8 rounded-md">
+    <form onSubmit={submitPost} className="bg-white my-8 p-8 rounded-md">
       <div className="flex flex-col my-4 ">
         <textarea
           onChange={(e) => setTitle(e.target.value)}
@@ -17,7 +30,11 @@ export default function AddPost() {
         ></textarea>
       </div>
       <div className="flex items-center justify-between gap-2">
-        <p className={`font-bold text-sm ${title.length > 300 ? "text-red-700" : "text-gray-700"}`}>{`${title.length}/300`}</p>
+        <p
+          className={`font-bold text-sm ${
+            title.length > 300 ? "text-red-700" : "text-gray-700"
+          }`}
+        >{`${title.length}/300`}</p>
         <button
           disabled={isDisabled}
           className="text-sm bg-teal-600 text-white py-2 px-6 rounded-xl disabled:opacity-25"
